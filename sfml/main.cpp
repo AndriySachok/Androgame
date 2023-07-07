@@ -2,29 +2,32 @@
 #include<bits/stdc++.h>
 #include"map.h"
 #include"view.h"
-#include"inventory.h"
-	const int viewX=1024;
-    const int viewY=768;
+#include"gui.h"
+	const float hoodScale = 1;
+	const int viewX = 1024;
+    const int viewY = 768;
 using namespace sf;
 
 class Player{
 private: float x, y;
 public:
-	float w,h,dx,dy,speed = 0;
-	int dir = 0; //направление
+	float dx,dy,speed = 0;
+	bool life;
+	int dir, health, w, h; //направление
 	String File; //Ќазвание текстурки спрайта
 	Image image;
 	Texture texture;
 	Sprite sprite;
-	Player(String F, int X, int Y, float W, float H){ //  онструктор с параметрами игрока
+	Player(String F, int X, int Y, int W, int H){ //  онструктор с параметрами игрока
+		dir = 0; health = 5; life = true;
 		File = F;
 		w = W; h = H;
 		image.loadFromFile("textures/"+File);
 		texture.loadFromImage(image);
 		sprite.setTexture(texture);
 		x = X; y = Y; //  оординаты по€влени€ спрайта
-		sprite.setTextureRect(IntRect(w,h,w,h));
-		sprite.setOrigin(w/2,h/2);
+		sprite.setTextureRect(IntRect(w,h,80,80));
+		sprite.setOrigin(80/2, 80/2);
 	}
 
 void update(float time){
@@ -38,6 +41,7 @@ void update(float time){
 	y+=dy*time;
 	speed = 0;
 	sprite.setPosition(x,y);
+	if(health <= 0) life = false;
 }
 
 float getplayercoordinateX(){
@@ -57,9 +61,10 @@ int main()
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(0);
 
-	Player p("man.png", 500, 400, 80.0, 80.0);
+	Player p("man.png", 500, 400, 560, 640);
 	Inventory inv;
 	StaminaBar stmbar;
+	HealthBar hpbar;
 	
 	Image map1_image;
 	map1_image.loadFromFile("textures/tiles1_32x32.png");
@@ -82,7 +87,7 @@ int main()
 	float CurrentFrame = 0;
 	float staminaTimer = 0;
 	Clock clock;
-	
+        
     while (window.isOpen())
     {
     	float time = clock.getElapsedTime().asMicroseconds();
@@ -96,14 +101,16 @@ int main()
         }
         
         if(staminaTimer < 20000) staminaTimer += time;
-        
+    
         //stamina colours
-        if(staminaTimer > 20100 ){p.sprite.setColor(Color::Black);}
+       /* if(staminaTimer > 20100 ){p.sprite.setColor(Color::Black);}
 		if(staminaTimer > 5000 && staminaTimer < 19000){p.sprite.setColor(Color::Blue);}
-		if(staminaTimer > 0 && staminaTimer < 5000){p.sprite.setColor(Color::White);}
+		if(staminaTimer > 0 && staminaTimer < 5000){p.sprite.setColor(Color::White);}*/
 		
         /////////////////////////movement//////////////////////////////////
         
+        if(p.life)
+		{
 		//walk
 		if(Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))){ 
 		p.dir = 1; p.speed = 0.15;
@@ -206,11 +213,20 @@ int main()
 		if(CurrentFrame > 6) CurrentFrame -= 6;
 		p.sprite.setTextureRect(IntRect(480+80*int(CurrentFrame),400,80,80));
 		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
+			}
 		}
-	}	
+	}
+		else {
+			p.speed = 0;
+			CurrentFrame += 0.009*time;
+			if(CurrentFrame > 8) CurrentFrame = 7;
+			p.sprite.setTextureRect(IntRect(80*int(CurrentFrame),640,80,80));
+			getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
+		}
 		
-		inv.update(p.sprite.getPosition().x, p.sprite.getPosition().y, viewY);
-		stmbar.update(staminaTimer, p.sprite.getPosition().x, p.sprite.getPosition().y, viewX, viewY);
+		inv.update(p.sprite.getPosition().x, p.sprite.getPosition().y, viewY, hoodScale);
+		stmbar.update(staminaTimer, p.sprite.getPosition().x, p.sprite.getPosition().y, viewX, viewY, hoodScale);
+		hpbar.update(p.sprite.getPosition().x, p.sprite.getPosition().y, viewX, viewY, p.health, hoodScale, CurrentFrame);
 		p.update(time);
 		window.setView(view);
 		
@@ -242,8 +258,13 @@ int main()
 				window.draw(map1_sprite);
 			}
 		}
-		inv.draw(window);
-		stmbar.draw(window);
+		if(p.life)
+		{
+			inv.draw(window);
+			stmbar.draw(window);
+			hpbar.draw(window,p.health);
+		}
+		
         window.draw(p.sprite);
         window.display();
     }
