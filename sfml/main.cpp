@@ -3,31 +3,40 @@
 #include"map.h"
 #include"view.h"
 #include"gui.h"
+#include"movement.h"
 	const float hoodScale = 1;
 	const int viewX = 1024;
     const int viewY = 768;
 using namespace sf;
 
-class Player{
-private: float x, y;
+class Entity{
+	public:
+		float x, y, dx, dy, speed;
+		int health, coordX, coordY, w, h, dir;
+		bool life;
+		String name;
+		Texture texture;
+		Sprite sprite;
+		
+		Entity(Image &image, float X, float Y, int CoordX, int CoordY, int W, int H, String Name){
+			x = X; y = Y; dir = 0; life = true; dx = 0; dy = 0; speed = 0;
+			coordX = CoordX; coordY = CoordY; w = W; h = H;
+			name = Name;
+			
+			texture.loadFromImage(image);
+			sprite.setTexture(texture);
+			sprite.setOrigin(w/2,h/2);
+		}
+};
+
+class Player :public Entity{
 public:
-	float dx,dy,speed = 0;
-	bool life;
-	int dir, health, w, h; //направление
-	String File; //Название текстурки спрайта
-	Image image;
-	Texture texture;
-	Sprite sprite;
-	Player(String F, int X, int Y, int W, int H){ // Конструктор с параметрами игрока
-		dir = 0; health = 5; life = true;
-		File = F;
-		w = W; h = H;
-		image.loadFromFile("textures/"+File);
-		texture.loadFromImage(image);
-		sprite.setTexture(texture);
-		x = X; y = Y; // Координаты появления спрайта
-		sprite.setTextureRect(IntRect(w,h,80,80));
-		sprite.setOrigin(80/2, 80/2);
+	float staminaTimer;
+	Player(Image &image, float X, float Y, int CoordX, int CoordY, int W, int H, String Name):Entity(image,X,Y,CoordX,CoordY,W,H,Name){ // Constructor of the player(CoordX and CoordY are to set the right texture rect)
+		staminaTimer = 0; health = 5;
+		if(name == "Player1"){
+			sprite.setTextureRect(IntRect(coordX,coordY,w,h));
+		}
 	}
 
 void update(float time){
@@ -42,26 +51,23 @@ void update(float time){
 	speed = 0;
 	sprite.setPosition(x,y);
 	if(health <= 0) life = false;
+	if(life) Setplayercoordinateforview(sprite.getPosition().x, sprite.getPosition().y);
 }
 
-float getplayercoordinateX(){
-	return x;
-}
-float getplayercoordinateY(){
-	return y;
-}
 };
 
 int main()
 {
-
     RenderWindow window(VideoMode(viewX, viewY), "ANDROGAME(Strilyalki i puhtelki)");
     
     view.reset(FloatRect(0,0,viewX,viewY));
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(0);
-
-	Player p("man.png", 500, 400, 560, 640);
+	
+	Image heroImage;
+	heroImage.loadFromFile("textures/man.png");
+	
+	Player p(heroImage, 500, 400, 560, 640, 80, 80, "Player1");
 	Inventory inv;
 	StaminaBar stmbar;
 	HealthBar hpbar;
@@ -74,6 +80,7 @@ int main()
 	map1_sprite.setTexture(map1_texture);
 	map1_sprite.setScale(3,3);
 
+
 	Image background;
 	background.loadFromFile("textures/dd8208640e636edec2d90d8b0c9a7fa9.png");
 	Texture backtexture;
@@ -85,7 +92,7 @@ int main()
 	
 
 	float CurrentFrame = 0;
-	float staminaTimer = 0;
+
 	Clock clock;
         
     while (window.isOpen())
@@ -100,132 +107,17 @@ int main()
                 window.close();
         }
         
-        if(staminaTimer < 20000) staminaTimer += time;
+        if(p.staminaTimer < 20000) p.staminaTimer += time;
     
         //stamina colours
-       /* if(staminaTimer > 20100 ){p.sprite.setColor(Color::Black);}
-		if(staminaTimer > 5000 && staminaTimer < 19000){p.sprite.setColor(Color::Blue);}
-		if(staminaTimer > 0 && staminaTimer < 5000){p.sprite.setColor(Color::White);}*/
-		
-        /////////////////////////movement//////////////////////////////////
+       /* if(p.staminaTimer > 20000 ){p.sprite.setColor(Color::Black);}
+		if(p.staminaTimer > 5000 && p.staminaTimer < 19000){p.sprite.setColor(Color::Blue);}
+		if(p.staminaTimer > 0 && p.staminaTimer < 5000){p.sprite.setColor(Color::White);}*/
         
-        if(p.life)
-		{
-		//walk
-		if(Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))){ 
-		p.dir = 1; p.speed = 0.15;
-		CurrentFrame += 0.009*time;
-		if(CurrentFrame > 9) CurrentFrame -= 9;
-		p.sprite.setTextureRect(IntRect(80+80*int(CurrentFrame),0,-80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if(Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D))){ 
-		p.dir = 0; p.speed = 0.15;
-		CurrentFrame += 0.009*time;
-		if(CurrentFrame > 9) CurrentFrame -= 9;
-		p.sprite.setTextureRect(IntRect(80*int(CurrentFrame),0,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if(Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W))){ 
-		p.dir = 3; p.speed = 0.15;
-		CurrentFrame += 0.009*time;
-		if(CurrentFrame > 6) CurrentFrame -= 6;
-		p.sprite.setTextureRect(IntRect(80*int(CurrentFrame),400,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if(Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S))){ 
-		p.dir = 2; p.speed = 0.15;
-		CurrentFrame += 0.009*time;
-		if(CurrentFrame > 6) CurrentFrame -= 6;
-		p.sprite.setTextureRect(IntRect(480+80*int(CurrentFrame),400,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else { p.sprite.setTextureRect(IntRect(640,400,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-        
-		//run
-		if(staminaTimer > 1000)
-		if((Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))) && Keyboard::isKeyPressed(Keyboard::LShift)){ 
-		staminaTimer -= 3; 
-		p.dir = 1; p.speed = 0.25;
-		CurrentFrame += 0.005*time;
-		if (CurrentFrame > 9) CurrentFrame -= 9; 
-		p.sprite.setTextureRect(IntRect(80+80*int(CurrentFrame),0,-80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if((Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D))) && Keyboard::isKeyPressed(Keyboard::LShift)){ 
-		staminaTimer -= 3; 
-		p.dir = 0; p.speed = 0.25;
-		CurrentFrame += 0.005*time;
-		if(CurrentFrame > 9) CurrentFrame -= 9;
-		p.sprite.setTextureRect(IntRect(80*int(CurrentFrame),0,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if((Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W))) && Keyboard::isKeyPressed(Keyboard::LShift)){ 
-		staminaTimer -= 3; 
-		p.dir = 3; p.speed = 0.25;
-		CurrentFrame += 0.005*time;
-		if(CurrentFrame > 6) CurrentFrame -= 6;
-		p.sprite.setTextureRect(IntRect(80*int(CurrentFrame),400,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if((Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S))) && Keyboard::isKeyPressed(Keyboard::LShift)){ 
-		staminaTimer -= 3; 
-		p.dir = 2; p.speed = 0.25;
-		CurrentFrame += 0.005*time;
-		if(CurrentFrame > 6) CurrentFrame -= 6;
-		p.sprite.setTextureRect(IntRect(480+80*int(CurrentFrame),400,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		
-		// dash
-		
-		if(staminaTimer > 7000 || staminaTimer < 1000){
-		if((Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))) && Mouse::isButtonPressed(Mouse::Right)){ 
-		staminaTimer -= 7; 
-		p.dir = 1; p.speed = 0.5;
-		CurrentFrame += 0.001*time;
-		if(CurrentFrame > 5) CurrentFrame -= 5;
-		p.sprite.setTextureRect(IntRect(560+80*int(CurrentFrame),480,-80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if((Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D))) && Mouse::isButtonPressed(Mouse::Right)){ 
-		staminaTimer -= 7; 
-		p.dir = 0; p.speed = 0.5;
-		CurrentFrame += 0.001*time;
-		if(CurrentFrame > 6) CurrentFrame -= 6;
-		p.sprite.setTextureRect(IntRect(480+80*int(CurrentFrame),480,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if((Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W))) && Mouse::isButtonPressed(Mouse::Right)){ 
-		staminaTimer -= 7; 
-		p.dir = 3; p.speed = 0.5;
-		CurrentFrame += 0.001*time;
-		if(CurrentFrame > 6) CurrentFrame -= 6;
-		p.sprite.setTextureRect(IntRect(80*int(CurrentFrame),400,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
-		else if((Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S))) && Mouse::isButtonPressed(Mouse::Right)){ 
-		staminaTimer -= 7; 
-		p.dir = 2; p.speed = 0.5;
-		CurrentFrame += 0.001*time;
-		if(CurrentFrame > 6) CurrentFrame -= 6;
-		p.sprite.setTextureRect(IntRect(480+80*int(CurrentFrame),400,80,80));
-		getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-			}
-		}
-	}
-		else {
-			p.speed = 0;
-			CurrentFrame += 0.009*time;
-			if(CurrentFrame > 8) CurrentFrame = 7;
-			p.sprite.setTextureRect(IntRect(80*int(CurrentFrame),640,80,80));
-			getplayercoordinateforview(p.getplayercoordinateX(), p.getplayercoordinateY());
-		}
+       movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite);
 		
 		inv.update(p.sprite.getPosition().x, p.sprite.getPosition().y, viewY, hoodScale);
-		stmbar.update(staminaTimer, p.sprite.getPosition().x, p.sprite.getPosition().y, viewX, viewY, hoodScale);
+		stmbar.update(p.staminaTimer, p.sprite.getPosition().x, p.sprite.getPosition().y, viewX, viewY, hoodScale);
 		hpbar.update(p.sprite.getPosition().x, p.sprite.getPosition().y, viewX, viewY, p.health, hoodScale, CurrentFrame);
 		p.update(time);
 		window.setView(view);
