@@ -4,8 +4,8 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = main.o
-LINKOBJ  = main.o
+OBJ      = main.o TinyXML/tinystr.o TinyXML/tinyxml.o TinyXML/tinyxmlerror.o TinyXML/tinyxmlparser.o
+LINKOBJ  = main.o TinyXML/tinystr.o TinyXML/tinyxml.o TinyXML/tinyxmlerror.o TinyXML/tinyxmlparser.o
 LIBS     = -L"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/lib" -L"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -L"C:/SFML-2.4.2/lib" -mwindows -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system
 INCS     = -I"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/include" -I"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/SFML-2.4.2/include"
 CXXINCS  = -I"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/include" -I"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"D:/Андрій/Dev C++/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++" -I"C:/SFML-2.4.2/include"
@@ -26,3 +26,15 @@ $(BIN): $(OBJ)
 
 main.o: main.cpp
 	$(CPP) -c main.cpp -o main.o $(CXXFLAGS)
+
+TinyXML/tinystr.o: TinyXML/tinystr.cpp
+	$(CPP) -c TinyXML/tinystr.cpp -o TinyXML/tinystr.o $(CXXFLAGS)
+
+TinyXML/tinyxml.o: TinyXML/tinyxml.cpp
+	$(CPP) -c TinyXML/tinyxml.cpp -o TinyXML/tinyxml.o $(CXXFLAGS)
+
+TinyXML/tinyxmlerror.o: TinyXML/tinyxmlerror.cpp
+	$(CPP) -c TinyXML/tinyxmlerror.cpp -o TinyXML/tinyxmlerror.o $(CXXFLAGS)
+
+TinyXML/tinyxmlparser.o: TinyXML/tinyxmlparser.cpp
+	$(CPP) -c TinyXML/tinyxmlparser.cpp -o TinyXML/tinyxmlparser.o $(CXXFLAGS)

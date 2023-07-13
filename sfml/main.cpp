@@ -1,9 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include<bits/stdc++.h>
-#include"map.h"
 #include"view.h"
 #include"gui.h"
 #include"movement.h"
+#include "level.h"
+#include <vector>
+#include <list>
 	const float hoodScale = 1;
 	const int viewX = 1024;
     const int viewY = 768;
@@ -11,6 +13,7 @@ using namespace sf;
 
 class Entity{
 	public:
+		std::vector<Object> obj;
 		float x, y, dx, dy, speed;
 		int health, coordX, coordY, w, h, dir;
 		bool life;
@@ -25,19 +28,38 @@ class Entity{
 			
 			texture.loadFromImage(image);
 			sprite.setTexture(texture);
-			sprite.setOrigin(w/2,h/2);
+		//	sprite.setOrigin(w/2,h/2);
 		}
+		FloatRect getRect(){
+		return FloatRect(x, y, w, h);
+	}
 };
 
 class Player :public Entity{
 public:
 	float staminaTimer;
-	Player(Image &image, float X, float Y, int CoordX, int CoordY, int W, int H, String Name):Entity(image,X,Y,CoordX,CoordY,W,H,Name){ // Constructor of the player(CoordX and CoordY are to set the right texture rect)
-		staminaTimer = 0; health = 5;
+	Player(Image &image, Level &trees, float X, float Y, int CoordX, int CoordY, int W, int H, String Name):Entity(image,X,Y,CoordX,CoordY,W,H,Name){ // Constructor of the player(CoordX and CoordY are to set the right texture rect)
+		staminaTimer = 0; health = 5; obj = trees.GetAllObjects();
 		if(name == "Player1"){
 			sprite.setTextureRect(IntRect(coordX,coordY,w,h));
 		}
 	}
+
+
+void checkCollisionWithMap(float Dx, float Dy)
+	   {
+		   for (int i = 0; i<obj.size(); i++)
+		   if (getRect().intersects(obj[i].rect))
+		   {
+			   if (obj[i].name == "solid")
+			   {
+				   if (Dy>0)	{ y = obj[i].rect.top - h; dy = 0;}
+				   if (Dy<0)	{ y = obj[i].rect.top + obj[i].rect.height;  dy = 0;  }
+				   if (Dx>0)	{ x = obj[i].rect.left - w; dx = 0;}
+				   if (Dx<0)	{ x = obj[i].rect.left + obj[i].rect.width; dx = 0;}
+			   }
+		   }
+	   }
 
 void update(float time){
 	switch(dir){
@@ -51,44 +73,34 @@ void update(float time){
 	speed = 0;
 	sprite.setPosition(x,y);
 	if(health <= 0) life = false;
-	if(life) Setplayercoordinateforview(sprite.getPosition().x, sprite.getPosition().y);
+	if(life) Setplayercoordinateforview(sprite.getPosition().x+w/2, sprite.getPosition().y+h/2, viewX, viewY);
 }
 
 };
 
 int main()
 {
-    RenderWindow window(VideoMode(viewX, viewY), "ANDROGAME(Strilyalki i puhtelki)");
+    RenderWindow window(VideoMode(viewX, viewY), "ANDROGAME");
     
     view.reset(FloatRect(0,0,viewX,viewY));
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(0);
 	
-	Image heroImage;
-	heroImage.loadFromFile("textures/man.png");
+	Level trees;
+	trees.LoadFromFile("trees.tmx");
 	
-	Player p(heroImage, 500, 400, 560, 640, 80, 80, "Player1");
+	Level ground;
+	ground.LoadFromFile("ground.tmx");
+	
+	Image heroImage;
+	heroImage.loadFromFile("textures/me.png");
+	Object player=trees.GetObject("player");
+	
+	Player p(heroImage, trees, player.rect.left, player.rect.top, 560, 640, 80, 80, "Player1");
+	
 	Inventory inv;
 	StaminaBar stmbar;
 	HealthBar hpbar;
-	
-	Image map1_image;
-	map1_image.loadFromFile("textures/tiles1_32x32.png");
-	Texture map1_texture;
-	map1_texture.loadFromImage(map1_image);
-	Sprite map1_sprite;
-	map1_sprite.setTexture(map1_texture);
-	map1_sprite.setScale(3,3);
-
-
-	Image background;
-	background.loadFromFile("textures/dd8208640e636edec2d90d8b0c9a7fa9.png");
-	Texture backtexture;
-	backtexture.loadFromImage(background);
-	Sprite backsprite;
-	backsprite.setTexture(backtexture);
-	backsprite.setScale(3,4);
-	backsprite.setPosition(-700,-400);
 	
 
 	float CurrentFrame = 0;
@@ -108,48 +120,24 @@ int main()
         }
         
         if(p.staminaTimer < 20000) p.staminaTimer += time;
-    
-        //stamina colours
-       /* if(p.staminaTimer > 20000 ){p.sprite.setColor(Color::Black);}
-		if(p.staminaTimer > 5000 && p.staminaTimer < 19000){p.sprite.setColor(Color::Blue);}
-		if(p.staminaTimer > 0 && p.staminaTimer < 5000){p.sprite.setColor(Color::White);}*/
+        
         
        movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite);
 		
-		inv.update(p.sprite.getPosition().x, p.sprite.getPosition().y, viewY, hoodScale);
-		stmbar.update(p.staminaTimer, p.sprite.getPosition().x, p.sprite.getPosition().y, viewX, viewY, hoodScale);
-		hpbar.update(p.sprite.getPosition().x, p.sprite.getPosition().y, viewX, viewY, p.health, hoodScale, CurrentFrame);
+		inv.update(p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, hoodScale);
+		stmbar.update(p.staminaTimer, p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, hoodScale);
+		hpbar.update(p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, p.health, hoodScale, CurrentFrame);
+		
+		p.checkCollisionWithMap(p.dx,p.dy);
 		p.update(time);
 		window.setView(view);
 		
 		window.clear();
-		window.draw(backsprite);
-		
-		for(int i = 0; i < HEIGHT_MAP; i++){
-			for(int j = 0; j < WIDTH_MAP; j++){
-				switch(TileMap[i][j]){
-					case '0' : map1_sprite.setTextureRect(IntRect(512,512,32,32));	break;
-					case ' ' : map1_sprite.setTextureRect(IntRect(608,288,32,32)); break;
-					case 't' : map1_sprite.setTextureRect(IntRect(0,32,32,32)); break;
-					case 'T' : map1_sprite.setTextureRect(IntRect(128,64,32,32)); break;
-					case 's' : map1_sprite.setTextureRect(IntRect(544,352,32,32)); break;
-					case 'S' : map1_sprite.setTextureRect(IntRect(704,256,32,32)); break;
-					case '1' : map1_sprite.setTextureRect(IntRect(448,256,32,32)); break;
-					case '2' : map1_sprite.setTextureRect(IntRect(352,320,32,32)); break;
-					case '3' : map1_sprite.setTextureRect(IntRect(0,0,32,32)); break;
-					case '4' : map1_sprite.setTextureRect(IntRect(288,320,32,32)); break;
-					case '5' : map1_sprite.setTextureRect(IntRect(352,64,32,32)); break;
-					case '6' : map1_sprite.setTextureRect(IntRect(384,320,32,32)); break;
-					case '7' : map1_sprite.setTextureRect(IntRect(224,320,32,32)); break;
-					case '8' : map1_sprite.setTextureRect(IntRect(256,320,32,32)); break;
-					case '9' : map1_sprite.setTextureRect(IntRect(288,608,32,32)); break;
-				}
-				if(j*96>p.sprite.getPosition().x-viewX&&j*96<p.sprite.getPosition().x+viewX&&i*96<p.sprite.getPosition().y+viewY&&i*96>p.sprite.getPosition().y-viewY)
-				map1_sprite.setPosition(j*96, i*96);
-				
-				window.draw(map1_sprite);
-			}
-		}
+
+		ground.Draw(window);
+		window.draw(p.sprite);
+        trees.Draw(window);
+        
 		if(p.life)
 		{
 			inv.draw(window);
@@ -157,7 +145,7 @@ int main()
 			hpbar.draw(window,p.health);
 		}
 		
-        window.draw(p.sprite);
+        
         window.display();
     }
 

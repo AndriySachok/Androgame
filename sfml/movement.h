@@ -40,7 +40,7 @@ if(life == true)
 		//run
 		if(staminaTimer > 1000)
 		if((Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))) && Keyboard::isKeyPressed(Keyboard::LShift)){ 
-		staminaTimer -= 3; 
+		staminaTimer -= 10; 
 		dir = 1; speed = 0.25;
 		CurrentFrame += 0.005*time;
 		if (CurrentFrame > 9) CurrentFrame -= 9; 
@@ -48,7 +48,7 @@ if(life == true)
 
 		}
 		else if((Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D))) && Keyboard::isKeyPressed(Keyboard::LShift)){ 
-		staminaTimer -= 3; 
+		staminaTimer -= 10; 
 		dir = 0; speed = 0.25;
 		CurrentFrame += 0.005*time;
 		if(CurrentFrame > 9) CurrentFrame -= 9;
@@ -56,7 +56,7 @@ if(life == true)
 	
 		}
 		else if((Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W))) && Keyboard::isKeyPressed(Keyboard::LShift)){ 
-		staminaTimer -= 3; 
+		staminaTimer -= 10; 
 		dir = 3; speed = 0.25;
 		CurrentFrame += 0.005*time;
 		if(CurrentFrame > 6) CurrentFrame -= 6;
@@ -64,7 +64,7 @@ if(life == true)
 	
 		}
 		else if((Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S))) && Keyboard::isKeyPressed(Keyboard::LShift)){ 
-		staminaTimer -= 3; 
+		staminaTimer -= 10; 
 		dir = 2; speed = 0.25;
 		CurrentFrame += 0.005*time;
 		if(CurrentFrame > 6) CurrentFrame -= 6;
@@ -76,7 +76,7 @@ if(life == true)
 		
 		if(staminaTimer > 7000){
 		if((Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))) && Mouse::isButtonPressed(Mouse::Right)){ 
-		staminaTimer -= 7; 
+		staminaTimer -= 20; 
 		dir = 1; speed = 0.5;
 		CurrentFrame += 0.001*time;
 		if(CurrentFrame > 5) CurrentFrame -= 5;
@@ -84,7 +84,7 @@ if(life == true)
 	
 		}
 		else if((Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D))) && Mouse::isButtonPressed(Mouse::Right)){ 
-		staminaTimer -= 7; 
+		staminaTimer -= 20; 
 		dir = 0; speed = 0.5;
 		CurrentFrame += 0.001*time;
 		if(CurrentFrame > 6) CurrentFrame -= 6;
@@ -92,7 +92,7 @@ if(life == true)
 	
 		}
 		else if((Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W))) && Mouse::isButtonPressed(Mouse::Right)){ 
-		staminaTimer -= 7; 
+		staminaTimer -= 20; 
 		dir = 3; speed = 0.5;
 		CurrentFrame += 0.001*time;
 		if(CurrentFrame > 6) CurrentFrame -= 6;
@@ -100,7 +100,7 @@ if(life == true)
 	
 		}
 		else if((Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S))) && Mouse::isButtonPressed(Mouse::Right)){ 
-		staminaTimer -= 7; 
+		staminaTimer -= 20; 
 		dir = 2; speed = 0.5;
 		CurrentFrame += 0.001*time;
 		if(CurrentFrame > 6) CurrentFrame -= 6;

@@ -15,11 +15,23 @@ class Inventory
 	s.setTexture(t);
 	s.setTextureRect(IntRect(0, 0, 300, 50));
 	}
-void update(float x, float y, int viewY, float hoodScale)
+void update(float x, float y, int viewX, int viewY, float hoodScale)
 {
-	int diff = viewY/2 - 60;
 	s.setScale(hoodScale,hoodScale);
-	s.setPosition(x-150,y+diff);
+
+	float tempX, tempY;
+	if(x>viewX/2 && x<3200-viewX/2 && y>viewY/2 && y<3200-viewY/2) s.setPosition(x-150,y+viewY/2-60);
+	
+	else {
+		if(x<viewX/2 && y<viewY/2){tempX = viewX/2; tempY = viewY/2; s.setPosition(tempX-150,tempY+viewY/2-60);}
+		else if(x<viewX/2 && y>3200-viewY/2){tempX = viewX/2; tempY = 3200-viewY/2; s.setPosition(tempX-150,tempY+viewY/2-60);}
+		else if(x>3200-viewX/2 && y<viewY/2){tempX = 3200-viewX/2; tempY = viewY/2; s.setPosition(tempX-150,tempY+viewY/2-60);}
+		else if(x>3200-viewX/2 && y>3200-viewY/2){tempX = 3200-viewX/2; tempY = 3200-viewY/2; s.setPosition(tempX-150,tempY+viewY/2-60);}
+		else if(x<viewX/2){tempX = viewX/2; s.setPosition(tempX-150,y+viewY/2-60);}
+		else if(x>3200-viewX/2){tempX = 3200-viewX/2; s.setPosition(tempX-150,y+viewY/2-60);}
+		else if(y<viewY/2){tempY = viewY/2; s.setPosition(x-150,tempY+viewY/2-60);}
+		else if(y>3200-viewY/2){tempY = 3200-viewY/2; s.setPosition(x-150,tempY+viewY/2-60);}
+	}
 }
 void draw(RenderWindow &window)
 {
@@ -43,7 +55,7 @@ public:
 		s.setTexture(t);
 		s.setTextureRect(IntRect(0, 100, 300, 200));
 	
-		bar.setFillColor(Color(0, 0, 0, 200));
+		bar.setFillColor(Color(0, 0, 0, 220));
 		max = 20100;
 	}
  
@@ -54,12 +66,24 @@ public:
 		if (k<max)
 			bar.setSize(Vector2f((max - k) * 288 / max,90));
 		
-		int diffX = viewX/2 - 310;
-		int diffY = viewY/2 - 10;
 		s.setScale(hoodScale,hoodScale);
-		s.setPosition(x+diffX,y-diffY);
+
 		bar.setScale(hoodScale,hoodScale);
-		bar.setPosition(x+diffX+5,y-diffY+6);
+
+	
+		float tempX, tempY;
+	if(x>viewX/2 && x<3200-viewX/2 && y>viewY/2 && y<3200-viewY/2) { s.setPosition(x+viewX/2-310,y-viewY/2+10); bar.setPosition(x+viewX/2-310+5,y-viewY/2+10+6);}
+	
+	else {
+		if(x<viewX/2 && y<viewY/2){tempX = viewX/2; tempY = viewY/2; s.setPosition(tempX+viewX/2-310,tempY-viewY/2+10); bar.setPosition(tempX+viewX/2-310+5,tempY-viewY/2+10+6);}
+		else if(x<viewX/2 && y>3200-viewY/2){tempX = viewX/2; tempY = 3200-viewY/2; s.setPosition(tempX+viewX/2-310,tempY-viewY/2+10); bar.setPosition(tempX+viewX/2-310+5,tempY-viewY/2+10+6);}
+		else if(x>3200-viewX/2 && y<viewY/2){tempX = 3200-viewX/2; tempY = viewY/2; s.setPosition(tempX+viewX/2-310,tempY-viewY/2+10); bar.setPosition(tempX+viewX/2-310+5,tempY-viewY/2+10+6);}
+		else if(x>3200-viewX/2 && y>3200-viewY/2){tempX = 3200-viewX/2; tempY = 3200-viewY/2; s.setPosition(tempX+viewX/2-310,tempY-viewY/2+10); bar.setPosition(tempX+viewX/2-310+5,tempY-viewY/2+10+6);}
+		else if(x<viewX/2){tempX = viewX/2; s.setPosition(tempX+viewX/2-310,y-viewY/2+10); bar.setPosition(tempX+viewX/2-310+5,y-viewY/2+10+6);}
+		else if(x>3200-viewX/2){tempX = 3200-viewX/2; s.setPosition(tempX+viewX/2-310,y-viewY/2+10); bar.setPosition(tempX+viewX/2-310+5,y-viewY/2+10+6);}
+		else if(y<viewY/2){tempY = viewY/2; s.setPosition(x+viewX/2-310,tempY-viewY/2+10); bar.setPosition(x+viewX/2-310+5,tempY-viewY/2+10+6);}
+		else if(y>3200-viewY/2){tempY = 3200-viewY/2; s.setPosition(x+viewX/2-310,tempY-viewY/2+10); bar.setPosition(x+viewX/2-310+5,tempY-viewY/2+10+6);}
+	}
 	}
  
 	void draw(RenderWindow &window)
@@ -84,21 +108,32 @@ class HealthBar
 			t.loadFromImage(image);
 			s.setTexture(t);
 			s.setTextureRect(IntRect(0,50,250,50));
-			m.setTexture(t);
-			m.setTextureRect(IntRect(1000,0,250,50));
 	}
 	
 	void update(float x, float y, int viewX, int viewY, int hp, float hoodScale, float CurrentFrame)
 	{
 		for(int i = 0; i<=hp; i++){
 			int diffX = viewX/2 - 260;
-			int diffY = viewY/2 - 110;
+			int diffY = viewY/2 - 120;
 		
 			s.setTextureRect(IntRect(0,50,50*i,50));
 		//	s.setColor(Color::Blue);		//change color of healthpoints depending on spells or other stuff
-			s.setPosition(x+diffX+((5-i)*50),y-diffY);		// 5 - max hp possible for the player(diff between real in-game hp and full healed one)(offset)
-			m.setPosition(x+diffX,y-diffY);
+		
 			s.setScale(hoodScale,hoodScale);
+			
+			float tempX, tempY;
+			if(x>viewX/2 && x<3200-viewX/2 && y>viewY/2 && y<3200-viewY/2) s.setPosition(x+diffX+((5-i)*50),y-diffY);// 5 - max hp possible for the player(diff between real in-game hp and full healed one)(offset)
+	
+			else {
+		if(x<viewX/2 && y<viewY/2){tempX = viewX/2; tempY = viewY/2; s.setPosition(tempX+diffX+((5-i)*50),tempY-diffY);}
+		else if(x<viewX/2 && y>3200-viewY/2){tempX = viewX/2; tempY = 3200-viewY/2; s.setPosition(tempX+diffX+((5-i)*50),tempY-diffY);}
+		else if(x>3200-viewX/2 && y<viewY/2){tempX = 3200-viewX/2; tempY = viewY/2; s.setPosition(tempX+diffX+((5-i)*50),tempY-diffY);}
+		else if(x>3200-viewX/2 && y>3200-viewY/2){tempX = 3200-viewX/2; tempY = 3200-viewY/2; s.setPosition(tempX+diffX+((5-i)*50),tempY-diffY);}
+		else if(x<viewX/2){tempX = viewX/2; s.setPosition(tempX+diffX+((5-i)*50),y-diffY);}
+		else if(x>3200-viewX/2){tempX = 3200-viewX/2; s.setPosition(tempX+diffX+((5-i)*50),y-diffY);}
+		else if(y<viewY/2){tempY = viewY/2; s.setPosition(x+diffX+((5-i)*50),tempY-diffY);}
+		else if(y>3200-viewY/2){tempY = 3200-viewY/2; s.setPosition(x+diffX+((5-i)*50),tempY-diffY);}
+			}
 		}
 	}
 	void draw(RenderWindow &window, int health)
