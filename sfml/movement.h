@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite)
+void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite, bool &IsShoot)
 {
 
 if(life == true)
@@ -108,6 +108,11 @@ if(life == true)
 	
 			}
 		}
+		
+		if(!IsShoot && Mouse::isButtonPressed(Mouse::Left)){
+			IsShoot = true;
+		}
+		
 	}
 		else {
 			speed = 0;
