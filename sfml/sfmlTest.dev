@@ -1,7 +1,7 @@
 [Project]
 FileName=sfmlTest.dev
 Name=sfmlTest
-Type=0
+Type=1
 Ver=2
 ObjFiles=
 Includes=C:\SFML-2.4.2\include

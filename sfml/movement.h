@@ -2,7 +2,7 @@
 void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite, bool &IsShoot)
 {
 
-if(life == true)
+if(life)
 		{
 		//walk
 		if(Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))){ 

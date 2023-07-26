@@ -7,8 +7,8 @@
 #include <vector>
 #include <list>
 	const float hoodScale = 1;
-	const int viewX = 1920;
-    const int viewY = 1080;
+	const int viewX = 1024;
+    const int viewY = 768;
 using namespace sf;
 
 class Entity{
@@ -22,7 +22,7 @@ class Entity{
 		Sprite sprite;
 		
 		Entity(Image &image, float X, float Y, int CoordX, int CoordY, int W, int H, String Name){
-			x = X; y = Y; dir = 0; life = true; dx = 0; dy = 0; speed = 0;
+			x = X; y = Y; dir = 4; life = true; dx = 0; dy = 0; speed = 0;
 			coordX = CoordX; coordY = CoordY; w = W; h = H;
 			name = Name;
 			
@@ -82,29 +82,32 @@ void update(float time){
 
 class Bullet :public Entity{
 	public:
-	int tempX = 0, tempY = 0;
-	float distance = 0;
+	int tempx, tempy, diR;
+	float dist;
+
 	Bullet(Image &image, Level &trees, float X, float Y, int CoordX, int CoordY, int W, int H, String Name, int tempX, int tempY, float distance, int dir):Entity(image,X,Y,CoordX,CoordY,W,H,Name){
 		sprite.setTextureRect(IntRect(coordX,coordY,w,h));
 		obj = trees.GetObjects("solid");
-		speed = 0.8;
+		speed = 2.5;
 		life = true;
+		tempx = tempX; tempy = tempY; dist = distance; diR = dir;
 	}
 	
 	void update(float time){
+		float a = tempx-x;
+		float b = tempy - y;
+	//	float angleRotat = -((atan2(a,b))*180/3.14159265-90);
+		float angleShoot = (atan2(a,b))*180/3.14159265;
+	//	std::cout<<dist<<" ";
+		bool poss = true;
+		if(dist < 100) poss = false;
+		float speedX = speed * cos(angleShoot);
+		float speedY = speed * sin(angleShoot);
+		if (poss){
+		x += speedX;
+		y += speedY;
 		
-		x += speed*time*(tempX-x) / distance;
-		y += speed*time*(tempY-y) / distance;
-		
-	/*	switch(dir){
-		case 0 : dx = speed; dy = 0; break;
-		case 1 : dx = -speed; dy = 0; break;
-		case 2 : dx = 0; dy = speed; break;
-		case 3 : dx = 0; dy = - speed; break;
-	}
-	x+=dx*time;
-	y+=dy*time;
-		*/
+
 		if (x <= 0 || y <= 0 || x >= 3200 || y >= 3200) life = false;
 		
 		for (int i = 0; i < obj.size(); i++) {
@@ -113,9 +116,11 @@ class Bullet :public Entity{
 				life = false;
 			}
 		}
+
+		sprite.setRotation(-(angleShoot+90));
 		sprite.setPosition(x, y);
 	}
-	
+}
 };
 
 int main()
@@ -127,7 +132,7 @@ int main()
     window.setFramerateLimit(0);
 	
 	Image BulletImage;
-	BulletImage.loadFromFile("textures/bullet.png");
+	BulletImage.loadFromFile("textures/arrows.png");
 	
 	Level trees;
 	trees.LoadFromFile("trees.tmx");
@@ -168,7 +173,7 @@ int main()
         		tempX = pos.x;
         		tempY = pos.y;
         		distance = sqrt((tempX - p.sprite.getPosition().x)*(tempX - p.sprite.getPosition().x) + (tempY - p.sprite.getPosition().y)*(tempY - p.sprite.getPosition().y));
-        		entities.push_back(new Bullet(BulletImage, trees, p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, 0, 0, 15, 10, "Bullet1", tempX, tempY, distance, p.dir));
+				entities.push_back(new Bullet(BulletImage, trees, p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, 0, 20, 53, 10, "Bullet1", tempX, tempY, distance, p.dir));
 				p.IsShoot = false;
 			}
             if (event.type == Event::Closed)
