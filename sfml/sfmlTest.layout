@@ -1,11 +1,11 @@
 [Editors]
-Order=0,2,10,1,3
+Order=2,10,1,3,0
 Focused=0
 [Editor_0]
 <<<<<<< Updated upstream
 CursorCol=31
 CursorRow=45
-TopLine=33
+TopLine=41
 =======
 CursorCol=27
 CursorRow=11
@@ -23,9 +23,9 @@ CursorRow=1
 TopLine=1
 LeftChar=1
 [Editor_3]
-CursorCol=16
-CursorRow=124
-TopLine=97
+CursorCol=56
+CursorRow=36
+TopLine=96
 LeftChar=1
 [Editor_4]
 CursorCol=8
@@ -50,5 +50,5 @@ LeftChar=1
 [Editor_10]
 CursorCol=1
 CursorRow=275
-TopLine=236
+TopLine=203
 LeftChar=1
