@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include<SFML/Audio.hpp>
 #include<bits/stdc++.h>
 #include"view.h"
 #include"gui.h"
@@ -41,7 +42,7 @@ public:
 	bool IsShoot;
 	float staminaTimer;
 	Player(Image &image, Level &trees, float X, float Y, int CoordX, int CoordY, int W, int H, String Name):Entity(image,X,Y,CoordX,CoordY,W,H,Name){ // Constructor of the player(CoordX and CoordY are to set the right texture rect)
-		staminaTimer = 0; health = 5; obj = trees.GetAllObjects(); IsShoot = false;
+		staminaTimer = 0; health = 1; obj = trees.GetAllObjects(); IsShoot = false;
 		if(name == "Player1"){
 			sprite.setTextureRect(IntRect(coordX,coordY,w,h));
 		}
@@ -82,23 +83,23 @@ void update(float time){
 
 class Bullet :public Entity{
 	public:
-	int tempx, tempy, diR;
+	int tempx, tempy;
 	float dist;
 
-	Bullet(Image &image, Level &trees, float X, float Y, int CoordX, int CoordY, int W, int H, String Name, int tempX, int tempY, float distance, int dir):Entity(image,X,Y,CoordX,CoordY,W,H,Name){
+	Bullet(Image &image, Level &trees, float X, float Y, int CoordX, int CoordY, int W, int H, String Name, int tempX, int tempY, float distance):Entity(image,X,Y,CoordX,CoordY,W,H,Name){
 		sprite.setTextureRect(IntRect(coordX,coordY,w,h));
 		obj = trees.GetObjects("solid");
 		speed = 2.5;
 		life = true;
-		tempx = tempX; tempy = tempY; dist = distance; diR = dir;
+		tempx = tempX; tempy = tempY; dist = distance;
 	}
 	
 	void update(float time){
-		float a = tempx-x;
+		float a = tempx - x;
 		float b = tempy - y;
 	//	float angleRotat = -((atan2(a,b))*180/3.14159265-90);
-		float angleShoot = (atan2(a,b))*180/3.14159265;
-	//	std::cout<<dist<<" ";
+		float angleShoot = (atan2(a,b))*180/3.14159265359;
+		
 		bool poss = true;
 		if(dist < 100) poss = false;
 		float speedX = speed * cos(angleShoot);
@@ -116,11 +117,42 @@ class Bullet :public Entity{
 				life = false;
 			}
 		}
-
+		sprite.setOrigin(w/2,h/2);
 		sprite.setRotation(-(angleShoot+90));
-		sprite.setPosition(x, y);
+		sprite.setPosition(x+25, y+10);
 	}
 }
+};
+
+class Weapons{
+	public:
+		String name;
+		Texture texture;
+		Sprite sprite;
+		float coolDownTimer;
+		int coolDown;
+		
+		Weapons(Image &image, String Name, int CoolDown){
+			name = Name;
+			coolDown = CoolDown;
+			coolDownTimer = 0;
+			texture.loadFromImage(image);
+			sprite.setTexture(texture);
+			
+	}
+	
+	void update(float time, float x, float y, int tempX, int tempY, int coordX, int coordY, int w, int h){
+		sprite.setTextureRect(IntRect(coordX,coordY,w,h));
+		float a = tempX - x;
+		float b = tempY - y;
+	//	float angleRotat = -((atan2(a,b))*180/3.14159265-90);
+		float angleShoot = (atan2(a,b))*180/3.14159265359;
+		sprite.setOrigin(w/2,h/2);
+		sprite.setRotation(-(angleShoot+90));
+	
+		sprite.setPosition(x+55,y+50);
+	}
+	
 };
 
 int main()
@@ -143,16 +175,36 @@ int main()
 	Image heroImage;
 	heroImage.loadFromFile("textures/me.png");
 	Object player=trees.GetObject("player");
-	
 	Player p(heroImage, trees, player.rect.left, player.rect.top, 560, 640, 80, 80, "Player1");
+	
+	Image bowImage;
+	bowImage.loadFromFile("textures/bow.png");
+	Weapons bow(bowImage, "Bow", 2000);
 	
 	Inventory inv;
 	StaminaBar stmbar;
 	HealthBar hpbar;
 	
-	int tempX = 0,tempY = 0;
+	Music music;
+	music.openFromFile("audio/forest.wav");
+	music.play();
+	music.setLoop(true);
+	
+	SoundBuffer shootBuffer;
+	shootBuffer.loadFromFile("audio/shoot.wav");
+	Sound shoot(shootBuffer);
+	
+	SoundBuffer walkBuffer;
+	walkBuffer.loadFromFile("audio/walk.wav");
+	Sound walk(walkBuffer);
+	
+	SoundBuffer deathBuffer;
+	deathBuffer.loadFromFile("audio/mem-okontsovka-filma-to-be-continued.wav");
+	Sound death(deathBuffer);
+	
 	float distance = 0;
 	float CurrentFrame = 0;
+	int soundID=0;
 
 	std::list<Entity*>  entities;
 	std::list<Entity*>::iterator it;
@@ -162,36 +214,45 @@ int main()
     {
     	Vector2i pixelPos = Mouse::getPosition(window);
 		Vector2f pos = window.mapPixelToCoords(pixelPos);
-		
+    
     	float time = clock.getElapsedTime().asMicroseconds();
     	clock.restart();
     	time = time/800;
         Event event;
         while (window.pollEvent(event))
         {
+    			if(soundID == 1){
+    				walk.play();
+    				soundID = 0;
+				}
+				else if(soundID == 2){
+					death.play();
+					soundID = 0;
+				}
+    		//	if(soundID == 0) walk.stop(); 
         	if(p.IsShoot == true)  {
-        		tempX = pos.x;
-        		tempY = pos.y;
-        		distance = sqrt((tempX - p.sprite.getPosition().x)*(tempX - p.sprite.getPosition().x) + (tempY - p.sprite.getPosition().y)*(tempY - p.sprite.getPosition().y));
-				entities.push_back(new Bullet(BulletImage, trees, p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, 0, 20, 53, 10, "Bullet1", tempX, tempY, distance, p.dir));
+        		distance = sqrt((pos.x - p.sprite.getPosition().x)*(pos.x - p.sprite.getPosition().x) + (pos.y - p.sprite.getPosition().y)*(pos.y - p.sprite.getPosition().y));
+				entities.push_back(new Bullet(BulletImage, trees, p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, 0, 40, 53, 10, "Bullet1", pos.x, pos.y, distance));
+				shoot.play();
 				p.IsShoot = false;
 			}
             if (event.type == Event::Closed)
                 window.close();
         }
         
-        	for (it = entities.begin(); it != entities.end();)//??????? ??? ?????????? ?? ?????? ?? ?????
+        	for (it = entities.begin(); it != entities.end();)
 		{
-			Entity *b = *it;//??? ????????, ????? ?? ?????? (*it)->
-			b->update(time);//???????? ?-??? update ??? ???? ???????? (?? ???? ??? ???, ??? ???)
-			if (b->life == false)	{ it = entities.erase(it); delete b; }// ???? ???? ?????? ?????, ?? ??????? ???
-			else it++;//? ???? ???????? (??????????) ? ???? ???????. ??? ?????? ?? ????? ????????? ??????
+			Entity *b = *it;
+			b->update(time);
+			if (b->life == false)	{ it = entities.erase(it); delete b; }
+			else it++;
 		}
-        
+        if(bow.coolDownTimer < bow.coolDown) bow.coolDownTimer +=time;
         if(p.staminaTimer < 20000) p.staminaTimer += time;
         
-        
-       movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite, p.IsShoot);
+       	movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite, p.IsShoot, bow.coolDownTimer, bow.coolDown, soundID);
+       	
+	
 		
 		inv.update(p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, hoodScale);
 		stmbar.update(p.staminaTimer, p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, hoodScale);
@@ -199,6 +260,10 @@ int main()
 		
 		p.checkCollisionWithMap(p.dx,p.dy);
 		p.update(time);
+		
+		if(!p.IsShoot && bow.coolDownTimer < bow.coolDown) bow.update(time, p.x, p.y, pos.x, pos.y, 55, 0, 15, 46);
+		else bow.update(time, p.x, p.y, pos.x, pos.y, 0, 0, 40, 46);
+		
 		window.setView(view);
 		
 		window.clear();
@@ -208,6 +273,8 @@ int main()
 			window.draw((*it)->sprite); 
 		}
 		window.draw(p.sprite);
+		
+		if(p.life) window.draw(bow.sprite);
         trees.Draw(window);
         
 		if(p.life)
