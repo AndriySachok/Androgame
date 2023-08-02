@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 
-void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite, bool &IsShoot, float &coolDownTimer, int &coolDown)
+void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite, bool &IsShoot, float &coolDownTimer, int &coolDown, int &itemChosen, bool &isTaken)
 {
 
 if(life)
@@ -108,10 +108,18 @@ if(life)
 			}
 		}
 		
-		if(!IsShoot && Mouse::isButtonPressed(Mouse::Left) && coolDownTimer >= coolDown){
+		if(isTaken && !IsShoot && Mouse::isButtonPressed(Mouse::Left) && coolDownTimer >= coolDown){
 			IsShoot = true;
 			coolDownTimer = 0;
 		}
+		
+		
+		if(Keyboard::isKeyPressed(Keyboard::Num1)) itemChosen = 1;
+		else if(Keyboard::isKeyPressed(Keyboard::Num2)) itemChosen = 2;
+		else if(Keyboard::isKeyPressed(Keyboard::Num3)) itemChosen = 3;
+		else if(Keyboard::isKeyPressed(Keyboard::Num4)) itemChosen = 4;
+		else if(Keyboard::isKeyPressed(Keyboard::Num5)) itemChosen = 5;
+		else if(Keyboard::isKeyPressed(Keyboard::Num6)) itemChosen = 6;
 		
 	}
 		else {

@@ -3,9 +3,9 @@ Order=2,10,1,3,0
 Focused=0
 [Editor_0]
 <<<<<<< Updated upstream
-CursorCol=31
-CursorRow=45
-TopLine=41
+CursorCol=17
+CursorRow=193
+TopLine=167
 =======
 CursorCol=27
 CursorRow=11
@@ -13,8 +13,8 @@ TopLine=136
 >>>>>>> Stashed changes
 LeftChar=1
 [Editor_2]
-CursorCol=37
-CursorRow=58
+CursorCol=24
+CursorRow=9
 TopLine=1
 LeftChar=1
 [Editor_1]
@@ -23,9 +23,9 @@ CursorRow=1
 TopLine=1
 LeftChar=1
 [Editor_3]
-CursorCol=56
-CursorRow=36
-TopLine=96
+CursorCol=66
+CursorRow=122
+TopLine=99
 LeftChar=1
 [Editor_4]
 CursorCol=8

@@ -6,20 +6,46 @@ class Inventory
 	Image image;
 	Texture t;
 	Sprite s;
-
-
+	String itemName[6] = {};
+	
+	Image bow;
+	Texture tBow;
+	Sprite sBow;
+	
 	Inventory()
 	{
 	image.loadFromFile("textures/hood_textures.png");
 	t.loadFromImage(image);
 	s.setTexture(t);
 	s.setTextureRect(IntRect(0, 0, 300, 50));
+	
+	bow.loadFromFile("textures/PicsForInvent.png");
+	tBow.loadFromImage(bow);
+	sBow.setTexture(tBow);
+	sBow.setTextureRect(IntRect(0,0,45,45));
+	
 	}
 void update(float x, float y, int viewX, int viewY, float hoodScale)
 {
 	s.setScale(hoodScale,hoodScale);
-
 	float tempX, tempY;
+	for(int i = 0; i<6; i++){
+	if(itemName[i] == "Bow"){
+	if(x>viewX/2 && x<3200-viewX/2 && y>viewY/2 && y<3200-viewY/2) sBow.setPosition(x-147+(50*(i-1)),y+viewY/2-60+3);
+	
+	else {
+		if(x<viewX/2 && y<viewY/2){tempX = viewX/2; tempY = viewY/2; sBow.setPosition(tempX-147+(50*(i-1)),tempY+viewY/2-60+3);}
+		else if(x<viewX/2 && y>3200-viewY/2){tempX = viewX/2; tempY = 3200-viewY/2; sBow.setPosition(tempX-147+(50*(i-1)),tempY+viewY/2-60+3);}
+		else if(x>3200-viewX/2 && y<viewY/2){tempX = 3200-viewX/2; tempY = viewY/2; sBow.setPosition(tempX-147+(50*(i-1)),tempY+viewY/2-60+3);}
+		else if(x>3200-viewX/2 && y>3200-viewY/2){tempX = 3200-viewX/2; tempY = 3200-viewY/2; sBow.setPosition(tempX-147+(50*(i-1)),tempY+viewY/2-60+3);}
+		else if(x<viewX/2){tempX = viewX/2; sBow.setPosition(tempX-147+(50*(i-1)),y+viewY/2-60+3);}
+		else if(x>3200-viewX/2){tempX = 3200-viewX/2; sBow.setPosition(tempX-147+(50*(i-1)),y+viewY/2-60+3);}
+		else if(y<viewY/2){tempY = viewY/2; sBow.setPosition(x-147+(50*(i-1)),tempY+viewY/2-60+3);}
+		else if(y>3200-viewY/2){tempY = 3200-viewY/2; sBow.setPosition(x-147+(50*(i-1)),tempY+viewY/2-60+3);}
+	}
+	}
+}
+	
 	if(x>viewX/2 && x<3200-viewX/2 && y>viewY/2 && y<3200-viewY/2) s.setPosition(x-150,y+viewY/2-60);
 	
 	else {
@@ -36,6 +62,7 @@ void update(float x, float y, int viewX, int viewY, float hoodScale)
 void draw(RenderWindow &window)
 {
 	window.draw(s);
+	window.draw(sBow);
 }
 };
 

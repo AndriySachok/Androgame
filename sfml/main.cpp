@@ -41,8 +41,10 @@ class Player :public Entity{
 public:
 	bool IsShoot;
 	float staminaTimer;
+	String weapon;
+	int itemChosen;
 	Player(Image &image, Level &trees, float X, float Y, int CoordX, int CoordY, int W, int H, String Name):Entity(image,X,Y,CoordX,CoordY,W,H,Name){ // Constructor of the player(CoordX and CoordY are to set the right texture rect)
-		staminaTimer = 0; health = 5; obj = trees.GetAllObjects(); IsShoot = false;
+		staminaTimer = 0; health = 5; obj = trees.GetAllObjects(); IsShoot = false; weapon = ""; itemChosen = 0;
 		if(name == "Player1"){
 			sprite.setTextureRect(IntRect(coordX,coordY,w,h));
 		}
@@ -131,17 +133,22 @@ class Weapons{
 		Sprite sprite;
 		float coolDownTimer;
 		int coolDown;
+		bool isTaken;
 		
 		Weapons(Image &image, String Name, int CoolDown){
 			name = Name;
 			coolDown = CoolDown;
 			coolDownTimer = 0;
+			isTaken = false;
 			texture.loadFromImage(image);
 			sprite.setTexture(texture);
 			
 	}
 	
-	void update(float time, float x, float y, int tempX, int tempY, int coordX, int coordY, int w, int h){
+	void update(float time, float x, float y, int tempX, int tempY, int coordX, int coordY, int w, int h, String weapon, int itemChosen, String itemName[]){
+		
+		if(itemName[itemChosen] == "Bow"){
+			isTaken = true;
 		sprite.setTextureRect(IntRect(coordX,coordY,w,h));
 		float a = tempX - x;
 		float b = tempY - y;
@@ -151,6 +158,9 @@ class Weapons{
 		sprite.setRotation(-(angleShoot+90));
 	
 		sprite.setPosition(x+55,y+50);
+		}
+		else isTaken = false;
+	
 	}
 	
 };
@@ -173,17 +183,20 @@ int main()
 	ground.LoadFromFile("ground.tmx");
 	
 	Image heroImage;
-	heroImage.loadFromFile("textures/man.png");
+	heroImage.loadFromFile("textures/mikey.png");
 	Object player=trees.GetObject("player");
 	Player p(heroImage, trees, player.rect.left, player.rect.top, 560, 640, 80, 80, "Player1");
+	
+	Inventory inv;
+	StaminaBar stmbar;
+	HealthBar hpbar;
+		inv.itemName[1] = "Bow";
 	
 	Image bowImage;
 	bowImage.loadFromFile("textures/bow.png");
 	Weapons bow(bowImage, "Bow", 2000);
 	
-	Inventory inv;
-	StaminaBar stmbar;
-	HealthBar hpbar;
+
 	
 	Music music;
 	music.openFromFile("audio/forest.wav");
@@ -218,6 +231,7 @@ int main()
 				shoot.play();
 				p.IsShoot = false;
 			}
+			
             if (event.type == Event::Closed)
                 window.close();
         }
@@ -232,8 +246,7 @@ int main()
         if(bow.coolDownTimer < bow.coolDown) bow.coolDownTimer +=time;
         if(p.staminaTimer < 20000) p.staminaTimer += time;
         
-       	movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite, p.IsShoot, bow.coolDownTimer, bow.coolDown);
-       	
+       	movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite, p.IsShoot, bow.coolDownTimer, bow.coolDown, p.itemChosen, bow.isTaken);
 	
 		
 		inv.update(p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, hoodScale);
@@ -243,8 +256,8 @@ int main()
 		p.checkCollisionWithMap(p.dx,p.dy);
 		p.update(time);
 		
-		if(!p.IsShoot && bow.coolDownTimer < bow.coolDown) bow.update(time, p.x, p.y, pos.x, pos.y, 55, 0, 15, 46);
-		else bow.update(time, p.x, p.y, pos.x, pos.y, 0, 0, 40, 46);
+		if(!p.IsShoot && bow.coolDownTimer < bow.coolDown) bow.update(time, p.x, p.y, pos.x, pos.y, 55, 0, 15, 46, "Bow", p.itemChosen, inv.itemName);
+		else bow.update(time, p.x, p.y, pos.x, pos.y, 0, 0, 40, 46, "Bow", p.itemChosen, inv.itemName);
 		
 		window.setView(view);
 		
@@ -256,7 +269,7 @@ int main()
 		}
 		window.draw(p.sprite);
 		
-		if(p.life) window.draw(bow.sprite);
+		if(p.life && bow.isTaken) window.draw(bow.sprite);
         trees.Draw(window);
         
 		if(p.life)
