@@ -39,17 +39,27 @@ class Entity{
 
 class Player :public Entity{
 public:
-	bool IsShoot;
-	float staminaTimer;
+	bool IsShoot, isDamaged;
+	float staminaTimer, stunTimer;
 	String weapon;
-	int itemChosen;
+	int itemChosen, stunTime;
 	Player(Image &image, Level &trees, float X, float Y, int CoordX, int CoordY, int W, int H, String Name):Entity(image,X,Y,CoordX,CoordY,W,H,Name){ // Constructor of the player(CoordX and CoordY are to set the right texture rect)
-		staminaTimer = 0; health = 5; obj = trees.GetAllObjects(); IsShoot = false; weapon = ""; itemChosen = 0;
+		staminaTimer = 0; stunTimer = 0; stunTime = 1000; health = 5; obj = trees.GetAllObjects(); IsShoot = false; weapon = ""; itemChosen = 0; isDamaged = false;
 		if(name == "Player1"){
 			sprite.setTextureRect(IntRect(coordX,coordY,w,h));
 		}
 	}
 
+void stopMoving(float Dx, float Dy){
+	for (int i = 0; i<obj.size(); i++)
+		   if (getRect().intersects(obj[i].rect))
+		   {
+	 	if (Dy>0)	{ y = obj[i].rect.top - h; dy = 0;}
+		if (Dy<0)	{ y = obj[i].rect.top + obj[i].rect.height;  dy = 0;  }
+		if (Dx>0)	{ x = obj[i].rect.left - w; dx = 0;}
+		if (Dx<0)	{ x = obj[i].rect.left + obj[i].rect.width; dx = 0;}
+	}
+}
 
 void checkCollisionWithMap(float Dx, float Dy)
 	   {
@@ -58,11 +68,14 @@ void checkCollisionWithMap(float Dx, float Dy)
 		   {
 			   if (obj[i].name == "solid")
 			   {
-				   if (Dy>0)	{ y = obj[i].rect.top - h; dy = 0;}
-				   if (Dy<0)	{ y = obj[i].rect.top + obj[i].rect.height;  dy = 0;  }
-				   if (Dx>0)	{ x = obj[i].rect.left - w; dx = 0;}
-				   if (Dx<0)	{ x = obj[i].rect.left + obj[i].rect.width; dx = 0;}
+			   	stopMoving(Dx,Dy);
 			   }
+			   if(obj[i].name == "cactus"){
+			   		isDamaged = true;
+			   		health--;
+			   		obj[i].name = "solid";
+			   }
+			   
 		   }
 	   }
 
@@ -82,6 +95,21 @@ void update(float time){
 }
 
 };
+
+class Enemy :public Entity{
+	public:
+	Enemy(Image &image, Level &trees, float X, float Y, int CoordX, int CoordY, int W, int H, String Name):Entity(image, X, Y, CoordX, CoordY, W, H, Name){
+		if(name == "Pigeon"){
+			health = 1;
+			sprite.setTextureRect(IntRect(coordX,coordY,w,h));
+		}
+	}
+	
+/*	void update(float time){
+		
+	}*/
+};
+
 
 class Bullet :public Entity{
 	public:
@@ -167,8 +195,9 @@ class Weapons{
 
 int main()
 {
+	srand(time(NULL));
     RenderWindow window(VideoMode(viewX, viewY), "ANDROGAME");
-    
+
     view.reset(FloatRect(0,0,viewX,viewY));
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(0);
@@ -186,6 +215,10 @@ int main()
 	heroImage.loadFromFile("textures/mikey.png");
 	Object player=trees.GetObject("player");
 	Player p(heroImage, trees, player.rect.left, player.rect.top, 560, 640, 80, 80, "Player1");
+	
+	Image pigeonImage;
+	pigeonImage.loadFromFile("texture/pigeons_50.png");
+	Enemy enemy(pigeonImage, trees, 0, 0, 0, 0, 50, 50, "Pigeon");
 	
 	Inventory inv;
 	StaminaBar stmbar;
@@ -207,6 +240,10 @@ int main()
 	shootBuffer.loadFromFile("audio/shoot.wav");
 	Sound shoot(shootBuffer);
 	
+	SoundBuffer damageBuffer;
+	damageBuffer.loadFromFile("audio/bird-01-collision-a4_1.wav");
+	Sound damage(damageBuffer);
+	
 	float distance = 0;
 	float CurrentFrame = 0;
 
@@ -215,7 +252,7 @@ int main()
 	Clock clock;
         
     while (window.isOpen())
-    {
+    {	
     	Vector2i pixelPos = Mouse::getPosition(window);
 		Vector2f pos = window.mapPixelToCoords(pixelPos);
         	
@@ -232,6 +269,11 @@ int main()
 				p.IsShoot = false;
 			}
 			
+			if(p.isDamaged){
+				damage.play();
+				p.isDamaged = false;
+			}
+			
             if (event.type == Event::Closed)
                 window.close();
         }
@@ -243,10 +285,10 @@ int main()
 			if (b->life == false)	{ it = entities.erase(it); delete b; }
 			else it++;
 		}
-        if(bow.coolDownTimer < bow.coolDown) bow.coolDownTimer +=time;
+        if(bow.coolDownTimer < bow.coolDown) bow.coolDownTimer += time;
         if(p.staminaTimer < 20000) p.staminaTimer += time;
         
-       	movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite, p.IsShoot, bow.coolDownTimer, bow.coolDown, p.itemChosen, bow.isTaken);
+       	movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite, p.IsShoot, bow.coolDownTimer, bow.coolDown, p.stunTimer, p.stunTime, p.itemChosen, bow.isTaken, p.isDamaged);
 	
 		
 		inv.update(p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, hoodScale);

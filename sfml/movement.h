@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
 
-void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite, bool &IsShoot, float &coolDownTimer, int &coolDown, int &itemChosen, bool &isTaken)
+void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite, bool &IsShoot, float &coolDownTimer, int &coolDown, float &stunTimer, int &stunTime, int &itemChosen, bool &isTaken, bool &isDamaged)
 {
 
-if(life)
+if(life && !isDamaged)
 		{
 		//walk
 		if(Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))){ 
@@ -33,7 +33,9 @@ if(life)
 		sprite.setTextureRect(IntRect(480+80*int(CurrentFrame),400,80,80));
 
 		}
-		else { sprite.setTextureRect(IntRect(640,400,80,80));
+		else { 
+			sprite.setTextureRect(IntRect(640,400,80,80));
+			
 		}
         
 		//run
@@ -108,11 +110,12 @@ if(life)
 			}
 		}
 		
+		
+		
 		if(isTaken && !IsShoot && Mouse::isButtonPressed(Mouse::Left) && coolDownTimer >= coolDown){
 			IsShoot = true;
 			coolDownTimer = 0;
 		}
-		
 		
 		if(Keyboard::isKeyPressed(Keyboard::Num1)) itemChosen = 1;
 		else if(Keyboard::isKeyPressed(Keyboard::Num2)) itemChosen = 2;
@@ -121,8 +124,21 @@ if(life)
 		else if(Keyboard::isKeyPressed(Keyboard::Num5)) itemChosen = 5;
 		else if(Keyboard::isKeyPressed(Keyboard::Num6)) itemChosen = 6;
 		
+		
+		
+		
 	}
-		else {
+	else if(life && isDamaged){
+				staminaTimer -= 500; 
+				sprite.setTextureRect(IntRect(240,880,80,80));
+				stunTimer += time;
+			/*	if(stunTimer >= stunTime){
+					isDamaged = false;
+					stunTimer = 0;
+				}*/
+			
+	}
+		else if(!life){
 			speed = 0;
 			CurrentFrame += 0.009*time;
 			if(CurrentFrame > 8) CurrentFrame = 7;
