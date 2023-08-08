@@ -3,9 +3,9 @@ Order=2,10,1,3,0
 Focused=0
 [Editor_0]
 <<<<<<< Updated upstream
-CursorCol=11
-CursorRow=83
-TopLine=136
+CursorCol=20
+CursorRow=119
+TopLine=94
 =======
 CursorCol=27
 CursorRow=11
@@ -18,14 +18,14 @@ CursorRow=9
 TopLine=1
 LeftChar=1
 [Editor_1]
-CursorCol=1
-CursorRow=1
+CursorCol=88
+CursorRow=10
 TopLine=1
 LeftChar=1
 [Editor_3]
-CursorCol=4
+CursorCol=22
 CursorRow=132
-TopLine=86
+TopLine=1
 LeftChar=1
 [Editor_4]
 CursorCol=8

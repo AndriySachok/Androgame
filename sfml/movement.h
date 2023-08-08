@@ -129,7 +129,7 @@ if(life && !isDamaged)
 		
 	}
 	else if(life && isDamaged){
-				staminaTimer -= 500; 
+				staminaTimer -= 50; 
 				sprite.setTextureRect(IntRect(240,880,80,80));
 				stunTimer += time;
 			/*	if(stunTimer >= stunTime){
