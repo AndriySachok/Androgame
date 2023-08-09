@@ -109,16 +109,22 @@ class Enemy :public Entity{
 	}
 	
 	void update(float time, float randX, float randY, float playerX, float playerY, float distance){
-		std::cout<<randX<<" ";
-		float a = randX - playerX;
-		float b = randY - playerY;
 		
-		float angleShoot = -((atan2(a,b))*180/3.14159265-90);
+		float a = randX - x;
+		float b = randY - y;
+		
+		float angleShoot = (atan2(b,a))*180/3.14159265;
+		std::cout<<angleShoot<<" ";
 		float speedX = speed * cos(angleShoot);
 		float speedY = speed * sin(angleShoot);
 		x += speedX*time;
 		y += speedY*time;
+		sprite.setOrigin(w/2,h/2);
+		sprite.setRotation(angleShoot);
+		if(angleShoot>90 || angleShoot<-90) sprite.setScale(1,-1);
+		else sprite.setScale(1,1);
 		sprite.setPosition(x, y);
+		
 	}
 };
 
@@ -210,7 +216,7 @@ int main()
 	srand(time(NULL));
     RenderWindow window(VideoMode(viewX, viewY), "ANDROGAME");
 
-    view.reset(FloatRect(0,0,2000,1500));
+    view.reset(FloatRect(0,0,1500,1000));
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(0);
 	
