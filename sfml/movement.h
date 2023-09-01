@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 
-void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite, bool &IsShoot, float &coolDownTimer, int &coolDown, float &stunTimer, int &stunTime, int &itemChosen, bool &isTaken, bool &isDamaged)
+void movement(int &dir, float &speed, float &CurrentFrame, float &staminaTimer, float &time, bool &life, Sprite &sprite, bool &IsShoot, float &coolDownTimer, int &coolDown, float &stunTimer, int &stunTime, int &itemChosen, bool &isTaken, bool &isDamaged, Sprite &enemySprite)
 {
 
 if(life && !isDamaged)
@@ -8,27 +8,27 @@ if(life && !isDamaged)
 		//walk
 		if(Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A))){ 
 		dir = 1; speed = 0.15;
-		CurrentFrame += 0.009*time;
+		CurrentFrame += 0.001*time;
 		if(CurrentFrame > 9) CurrentFrame -= 9;
 		sprite.setTextureRect(IntRect(80+80*int(CurrentFrame),0,-80,80));
 		}
 		else if(Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D))){ 
 		dir = 0; speed = 0.15;
-		CurrentFrame += 0.009*time;
+		CurrentFrame += 0.001*time;
 		if(CurrentFrame > 9) CurrentFrame -= 9;
 		sprite.setTextureRect(IntRect(80*int(CurrentFrame),0,80,80));
 
 		}
 		else if(Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W))){ 
 		dir = 3; speed = 0.15;
-		CurrentFrame += 0.009*time;
+		CurrentFrame += 0.001*time;
 		if(CurrentFrame > 6) CurrentFrame -= 6;
 		sprite.setTextureRect(IntRect(80*int(CurrentFrame),400,80,80));
 
 		}
 		else if(Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S))){ 
 		dir = 2; speed = 0.15;
-		CurrentFrame += 0.009*time;
+		CurrentFrame += 0.001*time;
 		if(CurrentFrame > 6) CurrentFrame -= 6;
 		sprite.setTextureRect(IntRect(480+80*int(CurrentFrame),400,80,80));
 
@@ -124,8 +124,10 @@ if(life && !isDamaged)
 		else if(Keyboard::isKeyPressed(Keyboard::Num5)) itemChosen = 5;
 		else if(Keyboard::isKeyPressed(Keyboard::Num6)) itemChosen = 6;
 		
-		
-		
+		//enemy
+			CurrentFrame += 0.009*time;
+		if(CurrentFrame > 5) CurrentFrame -= 5;
+		enemySprite.setTextureRect(IntRect(50+50*int(CurrentFrame),0,50,50));
 		
 	}
 	else if(life && isDamaged){

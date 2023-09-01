@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="391">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="392">
  <tileset firstgid="1" name="Tileset_1" tilewidth="32" tileheight="32" tilecount="4020" columns="60">
   <image source="textures/Tileset_3.png" width="1920" height="2160"/>
  </tileset>
@@ -10171,5 +10171,6 @@
   <object id="388" name="solid" x="1067.28" y="415.091" width="20.1818" height="25.8182"/>
   <object id="389" name="cactus" x="985.042" y="213.167" width="21.9167" height="27"/>
   <object id="390" name="solid" x="985.943" y="213.758" width="20.1818" height="25.8182"/>
+  <object id="391" name="pigeon" x="109.334" y="44.0003" width="34.6667" height="29.3333"/>
  </objectgroup>
 </map>

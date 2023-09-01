@@ -35,7 +35,6 @@ class Entity{
 		FloatRect getRect(){
 		return FloatRect(x, y, w, h);
 	}
-//	virtual void update(float time) = 0;
 };
 
 class Player :public Entity{
@@ -108,23 +107,45 @@ class Enemy :public Entity{
 		}
 	}
 	
-	void update(float time, float randX, float randY, float playerX, float playerY, float distance){
-		
+	void update(float time, float randX, float randY, float playerX, float playerY, float distance, float spawnX, float spawnY){
 		float a = randX - x;
 		float b = randY - y;
-		
 		float angleShoot = (atan2(b,a))*180/3.14159265;
-		std::cout<<angleShoot<<" ";
 		float speedX = speed * cos(angleShoot);
 		float speedY = speed * sin(angleShoot);
-		x += speedX*time;
-		y += speedY*time;
+		
+		if(life){
+			x += speedX*time;
+			y += speedY*time;
+			
+			if(x == randX || y == randY) std::cout<<"here";
+		}
+	
+		if(health <= 0) life = false;
+		else life=true;
+		
+		if(health==0){
+			health++;
+			x = spawnX;
+			y = spawnY;
+		}
+		//	std::cout<<life<<"\n";
 		sprite.setOrigin(w/2,h/2);
 		sprite.setRotation(angleShoot);
 		if(angleShoot>90 || angleShoot<-90) sprite.setScale(1,-1);
 		else sprite.setScale(1,1);
-		sprite.setPosition(x, y);
-		
+		sprite.setPosition(x, y);	
+	}
+	
+	void randomizer(float &randX, float &randY, float &distance, float px, float py){
+		int randDir = 1 + rand()%4;
+			switch(randDir){
+				case 1 : randX = px + rand()%viewX/2; break;
+				case 2 : randX = px - rand()%viewX/2; break;
+				case 3 : randY = py + rand()%viewY/2; break;
+				case 4 : randY = py - rand()%viewY/2; break;
+			}
+			distance = sqrt((randX - px)*(randX - px) + (randY - py)*(randY - py)); 
 	}
 };
 
@@ -198,11 +219,9 @@ class Weapons{
 		sprite.setTextureRect(IntRect(coordX,coordY,w,h));
 		float a = tempX - x;
 		float b = tempY - y;
-	//	float angleRotat = -((atan2(a,b))*180/3.14159265-90);
-		float angleShoot = (atan2(a,b))*180/3.14159265359;
+		float angleShoot = (atan2(b,a))*180/3.14159265359;
 		sprite.setOrigin(w/2,h/2);
-		sprite.setRotation(-(angleShoot+90));
-	
+		sprite.setRotation(angleShoot-180);
 		sprite.setPosition(x+55,y+50);
 		}
 		else isTaken = false;
@@ -216,7 +235,7 @@ int main()
 	srand(time(NULL));
     RenderWindow window(VideoMode(viewX, viewY), "ANDROGAME");
 
-    view.reset(FloatRect(0,0,1500,1000));
+    view.reset(FloatRect(0,0,viewX,viewY));
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(0);
 	
@@ -230,13 +249,14 @@ int main()
 	ground.LoadFromFile("ground.tmx");
 	
 	Image heroImage;
-	heroImage.loadFromFile("textures/mikey.png");
-	Object player=trees.GetObject("player");
+	heroImage.loadFromFile("textures/me.png");
+	Object player = trees.GetObject("player");
 	Player p(heroImage, trees, player.rect.left, player.rect.top, 560, 640, 80, 80, "Player1");
 	
 	Image pigeonImage;
-	pigeonImage.loadFromFile("textures/pigeons_50.png");
-	Enemy enemy(pigeonImage, trees, 500, 500, 0, 0, 50, 50, "Pigeon");
+	pigeonImage.loadFromFile("textures/army_pigeons_50 + dizz.png");
+	Object pigeon = trees.GetObject("pigeon");
+	Enemy enemy(pigeonImage, trees, pigeon.rect.left, pigeon.rect.top, 0, 0, 50, 50, "Pigeon");
 	
 	Inventory inv;
 	StaminaBar stmbar;
@@ -267,6 +287,9 @@ int main()
 
 	std::list<Bullet*>  entities;
 	std::list<Bullet*>::iterator it;
+	std::list<Enemy*>  pigeons;
+	std::list<Enemy*>::iterator pig;
+
 	Clock clock;
         
     while (window.isOpen())
@@ -292,6 +315,8 @@ int main()
 				p.isDamaged = false;
 			}
 			
+		
+			
             if (event.type == Event::Closed)
                 window.close();
         }
@@ -303,27 +328,34 @@ int main()
 			if (b->life == false)	{ it = entities.erase(it); delete b; }
 			else it++;
 		}
+		
+		
+		
+		for (it = entities.begin(); it != entities.end(); it++)
+		{
+			if ((*it)->getRect().intersects(enemy.getRect()))
+			{
+					enemy.health--;
+				}
+			}
+		
+		
+		
         if(bow.coolDownTimer < bow.coolDown) bow.coolDownTimer += time;
         if(p.staminaTimer < 20000) p.staminaTimer += time;
         if(enemy.directionTimer < 4000) enemy.directionTimer += time;
         
-       	movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite, p.IsShoot, bow.coolDownTimer, bow.coolDown, p.stunTimer, p.stunTime, p.itemChosen, bow.isTaken, p.isDamaged);
+       	movement(p.dir, p.speed, CurrentFrame, p.staminaTimer, time, p.life, p.sprite, p.IsShoot, bow.coolDownTimer, bow.coolDown, p.stunTimer, p.stunTime, p.itemChosen, bow.isTaken, p.isDamaged, enemy.sprite);
 	
 		
 		float randX, randY, distance;
-		if(enemy.directionTimer >= 4000) {
-			int randDir = 1 + rand()%4;
-			switch(randDir){
-				case 1 : randX = p.x + rand()%viewX/2; break;
-				case 2 : randX = p.x - rand()%viewX/2; break;
-				case 3 : randY = p.y + rand()%viewY/2; break;
-				case 4 : randY = p.y - rand()%viewY/2; break;
-			}
-			distance = sqrt((randX - p.x)*(randX - p.x) + (randY - p.y)*(randY - p.y)); 
+		if(enemy.directionTimer >= 4000) {	
+			enemy.randomizer(randX, randY, distance, p.x, p.y);
 			enemy.directionTimer = 0;
 		}
-		enemy.update(time, randX, randY, p.x+p.w/2, p.y+p.h/2, distance);
 		
+	
+		enemy.update(time, randX, randY, p.x+p.w/2, p.y+p.h/2, distance, pigeon.rect.left, pigeon.rect.top);
 		
 		inv.update(p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, hoodScale);
 		stmbar.update(p.staminaTimer, p.sprite.getPosition().x+p.w/2, p.sprite.getPosition().y+p.h/2, viewX, viewY, hoodScale);
@@ -347,7 +379,11 @@ int main()
 		
 		if(p.life && bow.isTaken) window.draw(bow.sprite);
         trees.Draw(window);
+        
+        if(enemy.life)
         window.draw(enemy.sprite);
+    	
+     
 		if(p.life)
 		{
 			inv.draw(window);

@@ -1,11 +1,11 @@
 [Editors]
 Order=2,10,1,3,0
-Focused=0
+Focused=3
 [Editor_0]
 <<<<<<< Updated upstream
-CursorCol=13
-CursorRow=114
-TopLine=109
+CursorCol=18
+CursorRow=76
+TopLine=53
 =======
 CursorCol=27
 CursorRow=11
@@ -23,9 +23,9 @@ CursorRow=10
 TopLine=1
 LeftChar=1
 [Editor_3]
-CursorCol=22
-CursorRow=132
-TopLine=1
+CursorCol=17
+CursorRow=136
+TopLine=114
 LeftChar=1
 [Editor_4]
 CursorCol=8
@@ -48,7 +48,7 @@ CursorRow=1955
 TopLine=1923
 LeftChar=1
 [Editor_10]
-CursorCol=1
-CursorRow=275
-TopLine=203
+CursorCol=38
+CursorRow=265
+TopLine=248
 LeftChar=1
